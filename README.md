@@ -1,6 +1,6 @@
 # Project 3 - Polyglot Persistence and Service Discovery
 
-**Team members**: Zach Hofmeister, 
+**Team members**: Zach Hofmeister, Ryan Patrick 
 
 ## Description
 
