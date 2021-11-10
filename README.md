@@ -17,8 +17,10 @@ Next, activate the virtual environment like this:
 Next, install the required dependecies like this:
 > pip install -r requirements.txt
 
-Next, install haproxy & foreman like this:
+Next, install haproxy like this:
 > sudo apt install haproxy
+
+Next, install foreman like this:
 > sudo apt install ruby-foreman
 
 Next, generate the databases by running the **regenUsers.sh** and **regenPosts.sh** scripts inside the **/databases** directory.
