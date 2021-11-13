@@ -113,6 +113,19 @@ def changeBio(username, newBio):
 	db["users"].update(user_id, {"bio": newBio})
 	return {'result': f'Successfully updated bio for user: {username}'} #TODO
 
+# http POST 'localhost:5000/users/verify?username=zachattack&password=password'
+@hug.post('/users/verify')
+def verify_credentials(response, username: hug.types.text, password: hug.types.text):
+        db = Database("databases/Posts.db")
+        query = "SELECT username FROM users WHERE username = ? AND password = ?"
+        user = []
+
+        for row in db.query(query, (username, password)):
+            user = row
+        if not user:
+            response.status = hug.falcon.HTTP_404
+        return user
+
 # helper functions
 
 def getUserID(db, table, username):

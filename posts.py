@@ -1,6 +1,7 @@
 """posts microservice for project 2"""
 import hug
 from sqlite_utils import Database
+import requests
 
 # @hug.get('/posts/testFunction/{username}')
 # def test(username, password):
@@ -10,15 +11,14 @@ from sqlite_utils import Database
 
 @hug.authentication.basic
 def validate(username, password):
-    db = Database("databases/Posts.db")
-    query = "SELECT username FROM users WHERE username = ? AND password = ?"
-    user = []
-    for row in db.query(query, (username, password)):
-        user = row
-    if user:
-        return username
+    requestStr = 'http://localhost:5000/users/verify'
+
+    r = requests.post(requestStr, data={'username': username, 'password': str(password)})
+
+    if r:
+	    return username
     else:
-        return ''
+	    return ''
 
 # http GET 'localhost:5000/posts'
 
@@ -38,7 +38,7 @@ def getUserTimeline(username):
     query = "SELECT username, text, timestamp, repost_url FROM posts WHERE username = ? ORDER BY timestamp DESC"
     return {'result': db.query(query, (username,))}
 
-# http POST 'localhost:5000/posts/zachattack?text=here is my new post'
+# http POST 'localhost:5000/posts?text=here is my new post'
 
 @hug.post('/posts/', status=hug.falcon.HTTP_201, requires=validate)
 def createPost(response, username: hug.directives.user, text):
