@@ -16,9 +16,9 @@ def validate(username, password):
     r = requests.post(requestStr, data={'username': username, 'password': str(password)})
 
     if r:
-	    return username
+	    return r.json()
     else:
-	    return ''
+	    return []
 
 # http GET 'localhost:5000/posts'
 
@@ -41,10 +41,11 @@ def getUserTimeline(username):
 # http POST 'localhost:5000/posts?text=here is my new post'
 
 @hug.post('/posts/', status=hug.falcon.HTTP_201, requires=validate)
-def createPost(response, username: hug.directives.user, text):
+def createPost(response, user: hug.directives.user, text):
     """Posts the given text as the user"""
     db = Database("databases/Posts.db")
 
+    username = user['username']
     newPost = {"username": username, "text": text}
 
     try:
@@ -57,28 +58,32 @@ def createPost(response, username: hug.directives.user, text):
 
     return newPost
 
-# http GET 'localhost:5000/posts/zachattack/following'
+# http GET -a zachattack:password 'localhost:5000/posts/following'
 
-@hug.get('/posts/{username}/following')
-def getHomeTimeline(username):
+@hug.get('/posts/following', requires=validate)
+def getHomeTimeline(user: hug.directives.user):
     """Returns the timeline of posts from users that the user follows"""
     db = Database("databases/Posts.db")
+    
+    username = user['username']
+    
+    requestStr = 'http://localhost:5000/users/{}/following'.format(username)
+    r = requests.get(requestStr)
+    jsonObj = r.json()
+    
+    followerList = jsonObj['following']
+    followerStr = ''
+    
+    for entry in followerList:
+        followerStr += '\'{}\' OR posts.username = '.format(entry['following'])
+    
+    followerStr = followerStr[0:-3] # To remove the last OR
+    
     query = """
 		SELECT posts.username, posts.text, posts.timestamp, posts.repost_url
-		FROM posts, following
-		WHERE following.followername = ?
-			AND posts.username = following.friendname
+		FROM posts
+		WHERE posts.username = {}
 		ORDER BY timestamp DESC"""
-    return {'result': db.query(query, (username,))}
-
-# authRequired = hug.http(requires=hug.authentication.basic(
-# 	hug.authentication.verify("zach", "1234")
-# ))
-
-# http GET 'localhost:5000/testAuth?username=zachattack&password=12345
-# @authRequired.get('/testAuth')
-# def testAuth(user: hug.directives.user):
-# 	"""Authentication test"""
-# 	db = Database("databases/Posts.db")
-
-# 	return {'User': user} #TODO
+		
+    query = query.format(followerStr)
+    return {'result': db.query(query)}
