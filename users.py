@@ -2,7 +2,7 @@
 import hug
 from sqlite_utils import Database
 
-# http GET 'localhost:5000/users'
+# http GET '192.168.1.68:5000/users'
 
 @hug.get('/users/')
 def getAllUsers():
@@ -11,7 +11,7 @@ def getAllUsers():
 	query = "SELECT * FROM users"
 	return {'users': db.query(query)}
 
-# http POST 'localhost:5000/users?username=testuser&email=test@user.com&password=321123'
+# http POST '192.168.1.68:5000/users?username=testuser&email=test@user.com&password=321123'
 
 @hug.post('/users/', status=hug.falcon.HTTP_201)
 def createUser(response, username, email, password, bio=""):
@@ -34,7 +34,7 @@ def createUser(response, username, email, password, bio=""):
 
 	return newUser
 
-# http GET 'localhost:5000/users/zachattack'
+# http GET '192.168.1.68:5000/users/zachattack'
 @hug.get('/users/{username}')
 def getUser(username):
 	"""Returns the profile info for the user"""
@@ -42,7 +42,7 @@ def getUser(username):
 	query = "SELECT username, email, bio FROM users WHERE username = ?"
 	return {'user': db.query(query, (username,))}
 
-# http GET 'localhost:5000/users/zachattack/following'
+# http GET '192.168.1.68:5000/users/zachattack/following'
 @hug.get('/users/{username}/following')
 def getFollowing(username):
 	"""Returns who the user is following"""
@@ -50,7 +50,7 @@ def getFollowing(username):
 	query = "SELECT friendname AS following FROM following WHERE followername = ?"
 	return {'following': db.query(query, (username,))}
 
-# http POST 'localhost:5000/users/joachim/following?following=zachattack'
+# http POST '192.168.1.68:5000/users/joachim/following?following=zachattack'
 @hug.post('/users/{username}/following', status=hug.falcon.HTTP_201)
 def addFollowing(response, username, following):
 	db = Database("databases/Users.db")
@@ -72,7 +72,7 @@ def addFollowing(response, username, following):
 	
 	return newFollowing #TODO
 
-# http DELETE 'localhost:5000/users/joachim/following?following=zachattack'
+# http DELETE '192.168.1.68:5000/users/joachim/following?following=zachattack'
 @hug.delete('/users/{username}/following')
 def removeFollowing(response, username, following):
 	db = Database("databases/Users.db")
@@ -88,7 +88,7 @@ def removeFollowing(response, username, following):
 
 	return {'result': f'User {username} is no longer following {following}'} #TODO
 
-# http GET 'localhost:5000/users/zachattack/followers'
+# http GET '192.168.1.68:5000/users/zachattack/followers'
 @hug.get('/users/{username}/followers')
 def getFollowers(username):
 	"""Returns who follows the user"""
@@ -96,7 +96,7 @@ def getFollowers(username):
 	query = "SELECT followername AS follower FROM following WHERE friendname = ?"
 	return {'result': db.query(query, (username,))}
 
-# http PUT 'localhost:5000/users/zachattack/changePassword?newPass=12346'
+# http PUT '192.168.1.68:5000/users/zachattack/changePassword?newPass=12346'
 @hug.put('/users/{username}/changePassword')
 def changePassword(username, newPass):
 	db = Database("databases/Users.db")
@@ -104,7 +104,7 @@ def changePassword(username, newPass):
 	db["users"].update(user_id, {"password": newPass})
 	return {'result': f'Successfully updated password for user: {username}'} #TODO
 
-# http PUT 'localhost:5000/users/zachattack/changeBio?newBio=This is my new bio status'
+# http PUT '192.168.1.68:5000/users/zachattack/changeBio?newBio=This is my new bio status'
 @hug.put('/users/{username}/changeBio')
 def changeBio(username, newBio):
 	db = Database("databases/Users.db")
@@ -113,10 +113,10 @@ def changeBio(username, newBio):
 	db["users"].update(user_id, {"bio": newBio})
 	return {'result': f'Successfully updated bio for user: {username}'} #TODO
 
-# http POST 'localhost:5000/users/verify?username=zachattack&password=password'
+# http POST '192.168.1.68:5000/users/verify?username=zachattack&password=password'
 @hug.post('/users/verify')
 def verify_credentials(response, username: hug.types.text, password: hug.types.text):
-        db = Database("databases/Posts.db")
+        db = Database("databases/Users.db")
         query = "SELECT username FROM users WHERE username = ? AND password = ?"
         user = []
 

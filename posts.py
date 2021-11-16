@@ -9,18 +9,21 @@ import requests
 #     query = "SELECT username FROM users WHERE username = ? AND password = ?"
 #     return db.query(query, (username, password))
 
+
 @hug.authentication.basic
 def validate(username, password):
     requestStr = 'http://localhost:5000/users/verify'
 
     r = requests.post(requestStr, data={'username': username, 'password': str(password)})
+    # print(f"User: {username}, Pass: {password}")
 
     if r:
-	    return r.json()
+        return r.json()
     else:
-	    return []
+        return []
 
-# http GET 'localhost:5000/posts'
+# http GET '192.168.1.68:5000/posts'
+
 
 @hug.get('/posts/')
 def getPublicTimeline():
@@ -29,7 +32,8 @@ def getPublicTimeline():
     query = "SELECT username, text, timestamp, repost_url FROM posts ORDER BY timestamp DESC"
     return {'result': db.query(query)}
 
-# http GET 'localhost:5000/posts/zachattack'
+# http GET '192.168.1.68:5000/posts/zachattack'
+
 
 @hug.get('/posts/{username}')
 def getUserTimeline(username):
@@ -38,7 +42,7 @@ def getUserTimeline(username):
     query = "SELECT username, text, timestamp, repost_url FROM posts WHERE username = ? ORDER BY timestamp DESC"
     return {'result': db.query(query, (username,))}
 
-# http POST 'localhost:5000/posts?text=here is my new post'
+# http -a zachattack:password POST '192.168.1.68:5000/posts?text=here is my new post'
 
 @hug.post('/posts/', status=hug.falcon.HTTP_201, requires=validate)
 def createPost(response, user: hug.directives.user, text):
@@ -58,32 +62,32 @@ def createPost(response, user: hug.directives.user, text):
 
     return newPost
 
-# http GET -a zachattack:password 'localhost:5000/posts/following'
+# http -a zachattack:password GET '192.168.1.68:5000/posts/following'
 
 @hug.get('/posts/following', requires=validate)
 def getHomeTimeline(user: hug.directives.user):
     """Returns the timeline of posts from users that the user follows"""
     db = Database("databases/Posts.db")
-    
+
     username = user['username']
-    
-    requestStr = 'http://localhost:5000/users/{}/following'.format(username)
+
+    requestStr = "http://localhost:5000/users/{}/following".format(username)
     r = requests.get(requestStr)
     jsonObj = r.json()
-    
+
     followerList = jsonObj['following']
     followerStr = ''
-    
+
     for entry in followerList:
         followerStr += '\'{}\' OR posts.username = '.format(entry['following'])
-    
-    followerStr = followerStr[0:-3] # To remove the last OR
-    
+
+    followerStr = followerStr[0:-3]  # To remove the last OR
+
     query = """
 		SELECT posts.username, posts.text, posts.timestamp, posts.repost_url
 		FROM posts
 		WHERE posts.username = {}
 		ORDER BY timestamp DESC"""
-		
+
     query = query.format(followerStr)
     return {'result': db.query(query)}
