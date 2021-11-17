@@ -1,5 +1,6 @@
 """likes microservice for project 3"""
 import hug
+import redis
 
 # http GET '192.168.1.68:5000/likes'
 
@@ -7,6 +8,9 @@ import hug
 def getAllLikes():
 	"""Returns all likes"""
 	#Unimplimented
+	r = redis.Redis(host='localhost', port=6379, db=0)
+	r.set('foo', 'bar')
+	return r.get('foo')
 
 # http GET '192.168.1.68:5000/likes/popular'
 

@@ -33,7 +33,7 @@ Next, restart haproxy like this:
 > sudo systemctl restart haproxy
 
 Finally, start the services using foreman like this:
-> foreman start --formation users=1,posts=3
+> foreman start --formation users=1,posts=3,likes=1,polls=1,svcrg=1
 
 You should be able to navigate to localhost:5000/haproxy?stats to see the services if everything is done correctly.
 
