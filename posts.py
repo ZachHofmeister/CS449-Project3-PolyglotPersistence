@@ -29,7 +29,7 @@ def validate(username, password):
 def getPublicTimeline():
     """Returns the timeline of posts from all users"""
     db = Database("databases/Posts.db")
-    query = "SELECT username, text, timestamp, repost_url FROM posts ORDER BY timestamp DESC"
+    query = "SELECT * FROM posts ORDER BY timestamp DESC"
     return {'result': db.query(query)}
 
 # http GET '192.168.1.68:5000/posts/zachattack'
@@ -39,7 +39,7 @@ def getPublicTimeline():
 def getUserTimeline(username):
     """Returns the timeline of posts for the user"""
     db = Database("databases/Posts.db")
-    query = "SELECT username, text, timestamp, repost_url FROM posts WHERE username = ? ORDER BY timestamp DESC"
+    query = "SELECT * FROM posts WHERE username = ? ORDER BY timestamp DESC"
     return {'result': db.query(query, (username,))}
 
 # http -a zachattack:password POST '192.168.1.68:5000/posts?text=here is my new post'
@@ -84,7 +84,7 @@ def getHomeTimeline(user: hug.directives.user):
     followerStr = followerStr[0:-3]  # To remove the last OR
 
     query = """
-		SELECT posts.username, posts.text, posts.timestamp, posts.repost_url
+		SELECT *
 		FROM posts
 		WHERE posts.username = {}
 		ORDER BY timestamp DESC"""
