@@ -30,7 +30,7 @@ def createUser(response, username, email, password, bio=""):
 		response.status = hug.falcon.HTTP_409
 		return {"error": str(e)}
 
-	response.set_header("Location", f"/books/{username}")
+	response.set_header("Location", f"/users/{username}")
 
 	return newUser
 

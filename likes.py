@@ -43,7 +43,7 @@ def getUserLikes(response, username):
 # http GET '192.168.1.68:5000/likes/post/1'
 
 @hug.get('/likes/post/{postID}')
-def getPostLikes(response, postID):
+def getPostLikes(postID):
 	"""Returns how many likes a post has received"""
 	postLikes = redis.Redis(host='localhost', port=6379, db=postDB)
 	return {"likes": postLikes.get(postID)}
@@ -76,4 +76,5 @@ def likePost(response, postID, username):
 	popular = redis.Redis(host='localhost', port=6379, db=popularDB)
 	popular.zincrby("popular", 1, postID)
 
-
+	response.set_header("Location", f"/likes/post/{postID}")
+	return getPostLikes(postID=postID)

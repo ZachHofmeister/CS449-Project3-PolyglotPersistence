@@ -17,13 +17,8 @@ Next, activate the virtual environment like this:
 Next, install the required dependecies like this:
 > pip install -r requirements.txt
 
-Next, install haproxy like this:
-> sudo apt install haproxy
-
-Next, install foreman like this:
-> sudo apt install ruby-foreman
-
-Next, generate the databases by running the **regenUsers.sh** and **regenPosts.sh** scripts inside the **/databases** directory.
+Next, install the following packages with this command:
+> sudo apt install haproxy ruby-foreman redis python3-hiredis awscli python3-boto3
 
 Next, copy the configuration settings found in **example-haproxy.cgf** and paste them at the bottom of the config file for haproxy.
 The config file will be located in the /etc/haproxy directory, and you must open it with root privilege to edit it. For example:
@@ -31,6 +26,20 @@ The config file will be located in the /etc/haproxy directory, and you must open
 
 Next, restart haproxy like this:
 > sudo systemctl restart haproxy
+
+Next, configure AWS CLI like this:
+
+> aws configure
+
+> AWS Access Key ID [None]: fakeMyKeyId
+
+> AWS Secret Access Key [None]: fakeSecretAccessKey
+
+> Default region name [None]: us-west-2
+
+> Default output format [None]: table
+
+Next, generate the users and posts databases by running the **regenAll.sh** script inside the **/databases** directory.
 
 Finally, start the services using foreman like this:
 > foreman start --formation users=1,posts=3,likes=1,polls=1,svcrg=1
