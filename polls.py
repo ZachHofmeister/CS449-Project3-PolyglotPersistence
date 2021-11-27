@@ -110,5 +110,5 @@ def votePoll(response, username, question, voter, vote):
 
 @hug.get('/polls/health-check')
 def health_check(response):
-	response.status = hug.falcon.HTTP_404
+	response.status = hug.falcon.HTTP_200
 	return {'status': 'healthy'}
