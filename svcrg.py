@@ -18,9 +18,14 @@ def health_checkup():
 	for key, value in DB.items():
 		for instance in value:
 			requestStr = 'http://{}/{}/health-check'.format(instance, key)
-			r = requests.get(requestStr)
-			if r.status_code is not requests.codes.ok:
+
+			try:
+				r = requests.get(requestStr)
+			except Exception as e:
 				values_to_del[key] = instance
+			else:
+				if r.status_code is not requests.codes.ok:
+					values_to_del[key] = instance
 
 	with lock:
 		for key, value in values_to_del.items():
@@ -54,4 +59,4 @@ def register(response, name, URL):
 # http GET 'localhost:5400/svcrg/users'
 @hug.get('/svcrg/{name}')
 def getServiceByName(response, name):
-	return {'value': DB[name][0]}
+	return {'value': DB[name]}

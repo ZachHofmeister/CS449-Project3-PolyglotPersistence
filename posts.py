@@ -4,6 +4,7 @@ import os
 from sqlite_utils import Database
 import requests
 import configparser
+import socket
 
 # @hug.get('/posts/testFunction/{username}')
 # def test(username, password):
@@ -15,8 +16,9 @@ config = configparser.ConfigParser()
 config.read('api.ini')
 
 svcrg_location = config['svcrg']['URL']  #'http://localhost:5400/svcrg/register'
+url = 'localhost' # not working: socket.getfqdn()
 port = os.environ['PORT']
-requests.post(svcrg_location, data={'name': 'posts', 'URL': 'localhost:{}'.format(port)})
+requests.post(svcrg_location, data={'name': 'posts', 'URL': '{}:{}'.format(url,port)})
 
 @hug.authentication.basic
 def validate(username, password):
@@ -27,7 +29,7 @@ def validate(username, password):
     
     response = requests.get(svcrg_requestStr)
     jsonObj = response.json()    
-    users_requestStr = 'http://' + jsonObj['value'] + '/users/verify'
+    users_requestStr = 'http://' + jsonObj['value'][0] + '/users/verify'
     
 
     r = requests.post(users_requestStr, data={'username': username, 'password': str(password)})

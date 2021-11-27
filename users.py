@@ -9,8 +9,9 @@ config = configparser.ConfigParser()
 config.read('api.ini')
 
 requestStr = config['svcrg']['URL']  #'http://localhost:5400/svcrg/register'
+url = 'localhost' # not working: socket.getfqdn()
 port = os.environ['PORT']
-requests.post(requestStr, data={'name': 'users', 'URL': 'localhost:{}'.format(port)})
+requests.post(requestStr, data={'name': 'users', 'URL': '{}:{}'.format(url,port)})
 
 
 # http GET '192.168.1.68:5000/users'
