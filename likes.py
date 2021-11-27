@@ -1,6 +1,9 @@
 """likes microservice for project 3"""
 import hug
 import redis
+import os
+import requests
+import configparser
 
 # https://redis-py.readthedocs.io/en/stable/
 
@@ -17,6 +20,13 @@ import redis
 userDB = 0
 postDB = 1
 popularDB = 2
+
+config = configparser.ConfigParser()
+config.read('api.ini')
+
+requestStr = config['svcrg']['URL']  #'http://localhost:5400/svcrg/register'
+port = os.environ['PORT']
+requests.post(requestStr, data={'name': 'likes', 'URL': 'localhost:{}'.format(port)})
 
 # http GET '192.168.1.68:5000/likes/popular'
 
@@ -78,3 +88,8 @@ def likePost(response, postID, username):
 
 	response.set_header("Location", f"/likes/post/{postID}")
 	return getPostLikes(postID=postID)
+
+@hug.get('/likes/health-check')
+def health_check(response):
+	response.status = hug.falcon.HTTP_200
+	return {'status': 'healthy'}

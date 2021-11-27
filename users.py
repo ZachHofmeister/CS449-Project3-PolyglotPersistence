@@ -1,6 +1,17 @@
 """users microservice for project 2"""
 import hug
+import os
+import requests
+import configparser
 from sqlite_utils import Database
+
+config = configparser.ConfigParser()
+config.read('api.ini')
+
+requestStr = config['svcrg']['URL']  #'http://localhost:5400/svcrg/register'
+port = os.environ['PORT']
+requests.post(requestStr, data={'name': 'users', 'URL': 'localhost:{}'.format(port)})
+
 
 # http GET '192.168.1.68:5000/users'
 
@@ -125,6 +136,11 @@ def verify_credentials(response, username: hug.types.text, password: hug.types.t
         if not user:
             response.status = hug.falcon.HTTP_404
         return user
+
+@hug.get('/users/health-check')
+def health_check(response):
+	response.status = hug.falcon.HTTP_200
+	return {'status': 'healthy'}
 
 # helper functions
 

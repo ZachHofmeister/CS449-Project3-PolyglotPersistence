@@ -1,7 +1,9 @@
 """posts microservice for project 2"""
 import hug
+import os
 from sqlite_utils import Database
 import requests
+import configparser
 
 # @hug.get('/posts/testFunction/{username}')
 # def test(username, password):
@@ -9,12 +11,31 @@ import requests
 #     query = "SELECT username FROM users WHERE username = ? AND password = ?"
 #     return db.query(query, (username, password))
 
+config = configparser.ConfigParser()
+config.read('api.ini')
+
+svcrg_location = config['svcrg']['URL']  #'http://localhost:5400/svcrg/register'
+port = os.environ['PORT']
+requests.post(svcrg_location, data={'name': 'posts', 'URL': 'localhost:{}'.format(port)})
+
+@hug.get('/posts/register')
+def register_instance():
+	port = os.environ['PORT']
+	return {'URL': 'localhost:{}'.format(port)}
 
 @hug.authentication.basic
 def validate(username, password):
-    requestStr = 'http://localhost:5000/users/verify'
+    #requestStr = 'http://localhost:5000/users/verify'
+    
+    svcrg_requestStr = svcrg_location[0:-8] # To remove the word 'register'
+    svcrg_requestStr += 'users'
+    
+    response = requests.get(svcrg_requestStr)
+    jsonObj = response.json()    
+    users_requestStr = 'http://' + jsonObj['value'] + '/users/verify'
+    
 
-    r = requests.post(requestStr, data={'username': username, 'password': str(password)})
+    r = requests.post(users_requestStr, data={'username': username, 'password': str(password)})
     # print(f"User: {username}, Pass: {password}")
 
     if r:
@@ -91,3 +112,8 @@ def getHomeTimeline(user: hug.directives.user):
 
     query = query.format(followerStr)
     return {'result': db.query(query)}
+
+@hug.get('/posts/health-check')
+def health_check(response):
+	response.status = hug.falcon.HTTP_200
+	return {'status': 'healthy'}

@@ -1,6 +1,9 @@
 """polls microservice for project 3"""
 import hug
 import boto3
+import os
+import requests
+import configparser
 
 dynamodb = None
 
@@ -8,6 +11,13 @@ dynamodb = None
 # def getAllPolls():
 # 	"""Returns all polls"""
 # 	#Unimplimented, not required
+
+config = configparser.ConfigParser()
+config.read('api.ini')
+
+requestStr = config['svcrg']['URL']  #'http://localhost:5400/svcrg/register'
+port = os.environ['PORT']
+requests.post(requestStr, data={'name': 'polls', 'URL': 'localhost:{}'.format(port)})
 
 # http GET '192.168.1.68:5000/polls/zachattack/best breakfast'
 
@@ -97,3 +107,8 @@ def votePoll(response, username, question, voter, vote):
 				ReturnValues="UPDATED_NEW"
 			)
 			return response
+
+@hug.get('/polls/health-check')
+def health_check(response):
+	response.status = hug.falcon.HTTP_404
+	return {'status': 'healthy'}
