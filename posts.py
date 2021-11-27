@@ -18,11 +18,6 @@ svcrg_location = config['svcrg']['URL']  #'http://localhost:5400/svcrg/register'
 port = os.environ['PORT']
 requests.post(svcrg_location, data={'name': 'posts', 'URL': 'localhost:{}'.format(port)})
 
-@hug.get('/posts/register')
-def register_instance():
-	port = os.environ['PORT']
-	return {'URL': 'localhost:{}'.format(port)}
-
 @hug.authentication.basic
 def validate(username, password):
     #requestStr = 'http://localhost:5000/users/verify'
