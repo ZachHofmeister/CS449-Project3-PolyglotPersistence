@@ -39,12 +39,14 @@ def health_checkup():
 x = threading.Thread(target=health_checkup, args=(), daemon=True)
 x.start()
 
+# http GET '192.168.1.68:5000/svcrg'
+
 @hug.get('/svcrg/')
 def getAllServices():
 	"""Returns all services"""
 	return DB
 
-# http POST 'localhost:5400/svcrg/register?name=users&URL=localhost:5000'
+# http POST '192.168.1.68:5000/svcrg/register?name=users&URL=localhost:5000'
 @hug.post('/svcrg/register')
 def register(response, name, URL):
 	lock = threading.Lock()
@@ -56,7 +58,7 @@ def register(response, name, URL):
 		
 		return {name: DB[name]}
 
-# http GET 'localhost:5400/svcrg/users'
+# http GET '192.168.1.68:5000/svcrg/users'
 @hug.get('/svcrg/{name}')
 def getServiceByName(response, name):
 	return {'value': DB[name]}

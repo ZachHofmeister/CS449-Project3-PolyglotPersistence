@@ -41,18 +41,19 @@ Next, configure AWS CLI like this:
 
 Next, generate the users and posts databases by running the **regenAll.sh** script inside the **/databases** directory.
 
+To rengenerate the polls database, start dynamodb with the following command:
+
+> java -Djava.library.path=./databases/dynamodb/DynamoDBLocal_lib -jar ./databases/dynamodb/DynamoDBLocal.jar -sharedDb
+
+And while that is running, run the **regenPolls.py** script like this:
+
+> python3 regenPolls.py
+
 Finally, start the services using foreman like this:
-> foreman start --formation users=1,posts=3,likes=1,polls=1,svcrg=1
+> foreman start --formation users=1,posts=3,likes=1,polls=1,svcrg=1,dynamoDB=1
 
 You should be able to navigate to localhost:5000/haproxy?stats to see the services if everything is done correctly.
 
-## Users Service REST API Documentation
-
-
-
-## Posts Service REST API Documentation
-
-
-
 ## Shortcomings
 
+We believe the project is fully functional, but we didn't finish the REST API documentation besides example comments on how to make each type of request above their functions in their respective python file.
