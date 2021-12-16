@@ -5,6 +5,7 @@ from sqlite_utils import Database
 import requests
 import configparser
 import socket
+import greenstalk
 
 # @hug.get('/posts/testFunction/{username}')
 # def test(username, password):
@@ -76,6 +77,18 @@ def createPost(response, user: hug.directives.user, text):
         response.status = hug.falcon.HTTP_409
         return {"error": str(e)}
 
+    response.set_header("Location", f"/posts/{username}")
+
+    return newPost
+
+@hug.post('/posts/async', status=hug.falcon.HTTP.202, requires=validate)
+def createPostAsync(response, hug.directives.user, text):
+    """Inserts a new job to the message queue for creating a new post."""
+    client = greenstalk.Client(('127.0.0.1', 11300))
+    username = user['username']
+    newPost = {'username': username, 'text': text}
+    client.put(newPost)
+    
     response.set_header("Location", f"/posts/{username}")
 
     return newPost
