@@ -4,11 +4,14 @@ import threading
 import time
 from sqlite_utils import Database
 
+db = Database('databases/Posts.db')
+
 def consume_message():
-    job = client.reserve()
-    jsonObj = job.body()
-    db = Database('databases/Posts.db')
-    db["posts"].insert(newPost)
+    while True:
+        job = client.reserve()
+        jsonObj = job.body()
+        db["posts"].insert(newPost)
+        client.delete(job)
     
 client = greenstalk.Client(('127.0.0.1', 11300))    
 x = threading.Thread(target=consume_message, args=(), daemon=True)
