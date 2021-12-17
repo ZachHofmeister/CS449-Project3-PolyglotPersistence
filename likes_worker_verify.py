@@ -4,6 +4,7 @@ import configparser
 import requests
 import time
 import json
+import smtplib
 
 # db = Database('databases/Posts.db')
 
@@ -37,6 +38,12 @@ def consume_message():
             gsClient.use('likesRemove')
             gsClient.put(job.body)
             #notify the user by email
+            emailServer.sendmail("likeVerifyWorker@localhost", "user@localhost", f'''
+                You attempted to like a post, with the id {postID}, which does not exist.
+                Please do not attempt this any further.
+                Regards,
+                Likes Worker Verify
+            ''')
         gsClient.delete(job)
 
 
@@ -48,5 +55,8 @@ svcrg_requestStr += 'posts'
 
 gsClient = greenstalk.Client(('127.0.0.1', 11300))
 gsClient.watch('likes')
+
+emailServer = smtplib.SMTP('localhost', port=1025)
+emailServer.set_debuglevel(1)
 print("starting consume message function")
 consume_message()
