@@ -22,6 +22,8 @@ url = 'localhost' # not working: socket.getfqdn()
 port = os.environ['PORT']
 requests.post(svcrg_location, data={'name': 'posts', 'URL': '{}:{}'.format(url,port)})
 
+gsClient = greenstalk.Client(('127.0.0.1', 11300))
+
 @hug.authentication.basic
 def validate(username, password):
     #requestStr = 'http://localhost:5000/users/verify'
@@ -44,23 +46,34 @@ def validate(username, password):
 
 # http GET '192.168.1.68:5000/posts'
 
-
 @hug.get('/posts/')
 def getPublicTimeline():
     """Returns the timeline of posts from all users"""
     db = Database("databases/Posts.db")
     query = "SELECT * FROM posts ORDER BY timestamp DESC"
-    return {'result': db.query(query)}
+    return db.query(query)
 
 # http GET '192.168.1.68:5000/posts/zachattack'
 
-
-@hug.get('/posts/{username}')
+@hug.get('/posts/user/{username}')
 def getUserTimeline(username):
     """Returns the timeline of posts for the user"""
     db = Database("databases/Posts.db")
     query = "SELECT * FROM posts WHERE username = ? ORDER BY timestamp DESC"
-    return {'result': db.query(query, (username,))}
+    return db.query(query, (username,))
+
+@hug.get('/posts/id/{id}')
+def getPost(response, id):
+    """Returns the post with the given id"""
+    db = Database("databases/Posts.db")
+        
+    try:
+        post = db['posts'].get(id)
+    except Exception as e:
+        response.status = hug.falcon.HTTP_404
+        return None
+    else:
+        return post
 
 # http -a zachattack:password POST '192.168.1.68:5000/posts?text=here is my new post'
 
@@ -87,10 +100,11 @@ def createPost(response, user: hug.directives.user, text):
 @hug.post('/posts/async', status=hug.falcon.HTTP_202, requires=validate)
 def createPostAsync(response, user: hug.directives.user, text):
     """Inserts a new job to the message queue for creating a new post."""
-    client = greenstalk.Client(('127.0.0.1', 11300))
     username = user['username']
     newPost = {'username': username, 'text': text}
-    client.put(json.dumps(newPost))
+    gsClient.use('posts')
+    gsClient.put(json.dumps(newPost))
+    gsClient.use('polls')
     
     response.set_header("Location", f"/posts/{username}")
 
@@ -118,15 +132,15 @@ def getHomeTimeline(user: hug.directives.user):
     followerStr = followerStr[0:-3]  # To remove the last OR
 
     query = """
-		SELECT *
-		FROM posts
-		WHERE posts.username = {}
-		ORDER BY timestamp DESC"""
+        SELECT *
+        FROM posts
+        WHERE posts.username = {}
+        ORDER BY timestamp DESC"""
 
     query = query.format(followerStr)
     return {'result': db.query(query)}
 
 @hug.get('/posts/health-check')
 def health_check(response):
-	response.status = hug.falcon.HTTP_200
-	return {'status': 'healthy'}
+    response.status = hug.falcon.HTTP_200
+    return {'status': 'healthy'}
