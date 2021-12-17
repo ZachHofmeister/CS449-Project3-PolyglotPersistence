@@ -2,29 +2,37 @@
 import greenstalk
 import configparser
 import requests
+import time
 import redis
-import json
 
 # db = Database('databases/Posts.db')
 
 
 def consume_message():
+    svcrgResponse = None
+    while not svcrgResponse:
+        time.sleep(1)
+        try:
+            svcrgResponse = requests.get(svcrg_requestStr) #Exception if the request returns None, then svcrg isn't online yet.
+            jsonObj = svcrgResponse.json()
+        except:
+            svcrgResponse = None 
+        else:
+            if not jsonObj['value']: #if svcrg is returning None, posts it isn't registered yet and we need to try again.
+                svcrgResponse = None
+
+    postsIDUrl = 'http://' + jsonObj['value'][0] + '/posts/id/'
     while True:
-        print('hello world222')
         job = gsClient.reserve()
-
-        # This should be a try/catch, or while loop to wait for svcrg connection
-        svcrgResponse = requests.get(svcrg_requestStr)
-        jsonObj = svcrgResponse.json()    
-        postsIDUrl = 'http://' + jsonObj['value'][0] + '/posts/id/'
-
         postID = job.body
         postURL = postsIDUrl + postID
         print(postURL)
         postResponse = requests.get(postURL).json()
-        print(postResponse)
+        # print(postResponse)
         if not postResponse:
             print(f'post id {postID} does not exist')
+            #delete the like
+            #notify the user by email
         gsClient.delete(job)
 
 
@@ -36,5 +44,5 @@ svcrg_requestStr += 'posts'
 
 gsClient = greenstalk.Client(('127.0.0.1', 11300))
 gsClient.watch('likes')
-print('hello world')
+print("starting consume message function")
 consume_message()

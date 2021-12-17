@@ -61,4 +61,4 @@ def register(response, name, URL):
 # http GET '192.168.1.68:5000/svcrg/users'
 @hug.get('/svcrg/{name}')
 def getServiceByName(response, name):
-	return {'value': DB[name]}
+	return {'value': DB.get(name)}
