@@ -81,8 +81,10 @@ def createPost(response, user: hug.directives.user, text):
 
     return newPost
 
-@hug.post('/posts/async', status=hug.falcon.HTTP.202, requires=validate)
-def createPostAsync(response, hug.directives.user, text):
+# http -a zachattack:password POST '192.168.1.68:5000/posts/async?text=here is my async post'
+
+@hug.post('/posts/async', status=hug.falcon.HTTP_202, requires=validate)
+def createPostAsync(response, user: hug.directives.user, text):
     """Inserts a new job to the message queue for creating a new post."""
     client = greenstalk.Client(('127.0.0.1', 11300))
     username = user['username']

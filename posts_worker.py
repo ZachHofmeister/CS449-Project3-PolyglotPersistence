@@ -10,7 +10,7 @@ def consume_message():
     while True:
         job = client.reserve()
         jsonObj = job.body()
-        db["posts"].insert(newPost)
+        db["posts"].insert(jsonObj)
         client.delete(job)
     
 client = greenstalk.Client(('127.0.0.1', 11300))    
