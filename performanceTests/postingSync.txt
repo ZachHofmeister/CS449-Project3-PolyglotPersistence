@@ -1,0 +1,47 @@
+hey -m POST -H "Authorization: Basic $(echo -n zachattack:password | base64)" 'http://192.168.1.68:5000/posts?text=hereismynewSPAMMING_SYNC_post' > postingSync.txt
+
+Summary:
+  Total:	9.7670 secs
+  Slowest:	6.8850 secs
+  Fastest:	0.0353 secs
+  Average:	1.6762 secs
+  Requests/sec:	20.4771
+  
+  Total data:	13400 bytes
+  Size/request:	67 bytes
+
+Response time histogram:
+  0.035 [1]	|
+  0.720 [121]	|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  1.405 [17]	|■■■■■■
+  2.090 [3]	|■
+  2.775 [8]	|■■■
+  3.460 [6]	|■■
+  4.145 [6]	|■■
+  4.830 [5]	|■■
+  5.515 [11]	|■■■■
+  6.200 [7]	|■■
+  6.885 [15]	|■■■■■
+
+
+Latency distribution:
+  10% in 0.0821 secs
+  25% in 0.2369 secs
+  50% in 0.5396 secs
+  75% in 2.8936 secs
+  90% in 5.7131 secs
+  95% in 6.4019 secs
+  99% in 6.8572 secs
+
+Details (average, fastest, slowest):
+  DNS+dialup:	0.0037 secs, 0.0353 secs, 6.8850 secs
+  DNS-lookup:	0.0000 secs, 0.0000 secs, 0.0000 secs
+  req write:	0.0006 secs, 0.0001 secs, 0.0265 secs
+  resp wait:	1.6713 secs, 0.0349 secs, 6.8845 secs
+  resp read:	0.0004 secs, 0.0002 secs, 0.0064 secs
+
+Status code distribution:
+  [201]	200 responses
+
+
+

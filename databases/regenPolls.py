@@ -4,10 +4,14 @@ def regenPollsTable(dynamodb=None):
 	if not dynamodb:
 		dynamodb = boto3.resource('dynamodb', endpoint_url='http://localhost:8000')
 
-	table = None
-	try:
-		dynamodb.Table('Polls').delete()
-		table = dynamodb.create_table(
+	# table = None
+	# try:
+		
+	# except Exception as e:
+	# 	print(f'exception in createPollsTable: {str(e)}')
+	# 	# table = dynamodb.Table('Polls')
+	dynamodb.Table('Polls').delete()
+	table = dynamodb.create_table(
 			TableName='Polls',
 			KeySchema=[
 				{
@@ -34,9 +38,6 @@ def regenPollsTable(dynamodb=None):
 				'WriteCapacityUnits': 10
 			}
 		)
-	except Exception as e:
-		print(f'exception in createPollsTable: {str(e)}')
-		# table = dynamodb.Table('Polls')
 	
 	return table
 
