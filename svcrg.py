@@ -10,9 +10,9 @@ import requests
 #      }
 DB = {}
 
-
 def health_checkup():
 	time.sleep(10)
+	print("health check")
 	lock = threading.Lock()
 	values_to_del = {}
 	for key, value in DB.items():

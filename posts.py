@@ -6,6 +6,7 @@ import requests
 import configparser
 import socket
 import greenstalk
+import json
 
 # @hug.get('/posts/testFunction/{username}')
 # def test(username, password):
@@ -89,7 +90,7 @@ def createPostAsync(response, user: hug.directives.user, text):
     client = greenstalk.Client(('127.0.0.1', 11300))
     username = user['username']
     newPost = {'username': username, 'text': text}
-    client.put(newPost)
+    client.put(json.dumps(newPost))
     
     response.set_header("Location", f"/posts/{username}")
 
