@@ -30,6 +30,9 @@ url = 'localhost' # not working: socket.getfqdn()
 port = os.environ['PORT']
 requests.post(requestStr, data={'name': 'likes', 'URL': '{}:{}'.format(url,port)})
 
+gsClient = greenstalk.Client(('127.0.0.1', 11300))
+gsClient.use('likes')
+
 # http GET '192.168.1.68:5000/likes/popular'
 
 @hug.get('/likes/popular/')
@@ -89,6 +92,9 @@ def likePost(response, postID, username):
 	popular.zincrby("popular", 1, postID)
 
 	response.set_header("Location", f"/likes/post/{postID}")
+
+	gsClient.put(postID)
+
 	return getPostLikes(postID=postID)
 
 @hug.get('/likes/health-check')
