@@ -104,7 +104,6 @@ def createPostAsync(response, user: hug.directives.user, text):
     newPost = {'username': username, 'text': text}
     gsClient.use('posts')
     gsClient.put(json.dumps(newPost))
-    gsClient.use('polls')
     
     response.set_header("Location", f"/posts/{username}")
 

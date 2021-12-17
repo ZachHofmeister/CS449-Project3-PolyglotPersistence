@@ -12,8 +12,10 @@ def consume_message():
         jsonObj = json.loads(job.body)
         db["posts"].insert(jsonObj)
         print('hello from posts_worker')
+        gsClient.put(job.body)
         gsClient.delete(job)
     
 gsClient = greenstalk.Client(('127.0.0.1', 11300))
 gsClient.watch('posts')
+gsClient.use('polls')
 consume_message()
