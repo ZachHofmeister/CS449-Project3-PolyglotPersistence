@@ -5,6 +5,7 @@ import os
 import requests
 import configparser
 import greenstalk
+import json
 
 # https://redis-py.readthedocs.io/en/stable/
 
@@ -61,7 +62,10 @@ def getUserLikes(response, username):
 def getPostLikes(postID):
 	"""Returns how many likes a post has received"""
 	postLikes = redis.Redis(host='localhost', port=6379, db=postDB)
-	return {"likes": postLikes.get(postID)}
+	likes = postLikes.get(postID)
+	# if not likes:
+	# 	response.status = hug.falcon.HTTP_404
+	return likes
 
 # http POST '192.168.1.68:5000/likes/post/1?username=willum'
 
@@ -93,9 +97,27 @@ def likePost(response, postID, username):
 
 	response.set_header("Location", f"/likes/post/{postID}")
 
-	gsClient.put(postID)
+	gsClient.put(json.dumps({'username':username, 'postID':postID}))
 
 	return getPostLikes(postID=postID)
+
+# http DELETE '192.168.1.68:5000/likes/post/1?username=willum'
+
+@hug.delete('/likes/post/{postID}', status=hug.falcon.HTTP_204)
+def invalidateLike(response, postID, username):
+	"""Remove a like from username to a post, assuming postID is invalid"""
+
+	userLikes = redis.Redis(host='localhost', port=6379, db=userDB)
+	if not userLikes.sismember(username, postID):
+		response.status = hug.falcon.HTTP_409
+		return {"error": f"{username} has not liked post {postID}"}
+	userLikes.srem(username, postID)
+
+	postLikes = redis.Redis(host='localhost', port=6379, db=postDB)
+	postLikes.delete(postID)
+
+	popular = redis.Redis(host='localhost', port=6379, db=popularDB)
+	popular.zrem("popular", postID)
 
 @hug.get('/likes/health-check')
 def health_check(response):

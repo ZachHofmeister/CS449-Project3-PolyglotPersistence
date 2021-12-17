@@ -3,13 +3,14 @@ import greenstalk
 import configparser
 import requests
 import time
-import redis
+import json
 
 # db = Database('databases/Posts.db')
 
 
 def consume_message():
     svcrgResponse = None
+    #Wait till svcrg is up and can give us the url for posts
     while not svcrgResponse:
         time.sleep(1)
         try:
@@ -24,7 +25,8 @@ def consume_message():
     postsIDUrl = 'http://' + jsonObj['value'][0] + '/posts/id/'
     while True:
         job = gsClient.reserve()
-        postID = job.body
+        jsonObj = json.loads(job.body)
+        postID = jsonObj['postID']
         postURL = postsIDUrl + postID
         print(postURL)
         postResponse = requests.get(postURL).json()
@@ -32,6 +34,8 @@ def consume_message():
         if not postResponse:
             print(f'post id {postID} does not exist')
             #delete the like
+            gsClient.use('likesRemove')
+            gsClient.put(job.body)
             #notify the user by email
         gsClient.delete(job)
 
