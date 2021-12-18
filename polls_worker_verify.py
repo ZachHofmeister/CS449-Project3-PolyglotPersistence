@@ -38,6 +38,8 @@ def consume_message():
                 print(e)
             else:
                 if r.status_code is not requests.codes.ok:
+                    print(job.body)
+                    gsClient.put(job.body)
                     print('Not ok.')
                     break
                 else:
@@ -53,4 +55,5 @@ svcrg_requestStr += 'polls'
 
 gsClient = greenstalk.Client(('127.0.0.1', 11300))
 gsClient.watch('polls')
+gsClient.use('pollsRemove')
 consume_message()

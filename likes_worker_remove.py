@@ -1,4 +1,4 @@
-"""worker program to insert new posts into the database"""
+"""worker program to remove invalid likes from the database"""
 import greenstalk
 import configparser
 import requests
