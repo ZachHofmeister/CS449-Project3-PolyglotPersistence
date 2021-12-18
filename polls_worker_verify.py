@@ -5,6 +5,7 @@ import requests
 import json
 import time
 import re
+import smtplib
 
 def consume_message():
     svcrgResponse = None
@@ -40,6 +41,13 @@ def consume_message():
                 if r.status_code is not requests.codes.ok:
                     print(job.body)
                     gsClient.put(job.body)
+                    #notify the user by email
+                    emailServer.sendmail("pollsVerifyWorker@localhost", "user@localhost", f'''
+                        You attempted to link to a poll, with the id {pollID}, which does not exist.
+                        Please do not attempt this any further.
+                        Regards,
+                        Polls Worker Verify
+                    ''')                    
                     print('Not ok.')
                     break
                 else:
@@ -56,4 +64,6 @@ svcrg_requestStr += 'polls'
 gsClient = greenstalk.Client(('127.0.0.1', 11300))
 gsClient.watch('polls')
 gsClient.use('pollsRemove')
+emailServer = smtplib.SMTP('localhost', port=1025)
+emailServer.set_debuglevel(1)
 consume_message()
